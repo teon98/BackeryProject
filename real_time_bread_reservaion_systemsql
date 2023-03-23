@@ -1,0 +1,253 @@
+--테이블 수정용
+DROP TABLE BACKERYS;
+DROP TABLE MEMBERS;
+DROP TABLE TODAYBACKERYS;
+DROP TABLE ORDERS;
+
+--BACKERYS 테이블 생성
+CREATE TABLE BACKERYS (
+    backery_id VARCHAR2(20) PRIMARY KEY,
+    backery_name VARCHAR2(45) NOT NULL,
+    price NUMBER,
+    category VARCHAR2(45) CHECK( category IN ('단과자', '소시지', '식빵', '페스츄리', '케잌'))
+);
+
+--MEMBERS 테이블 생성
+CREATE TABLE MEMBERS(
+    member_name VARCHAR2(45) PRIMARY KEY,
+    member_number VARCHAR2(45) NOT NULL,
+    member_pw VARCHAR(45) NOT NULL
+);
+
+--TODAYBACKERYS 테이블 생성
+CREATE TABLE TODAYBACKERYS(
+    todaybackery_id NUMBER PRIMARY KEY,
+    backery_id VARCHAR2(20) REFERENCES BACKERYS(backery_id),
+    quantity INT NOT NULL
+);
+
+ALTER TABLE TODAYBACKERYS ADD create_date DATE DEFAULT sysdate;
+                
+--ORDERS 테이블 생성
+CREATE TABLE ORDERS(
+    order_id NUMBER PRIMARY KEY,
+    member_name VARCHAR2(45) REFERENCES MEMBERS(member_name),
+    todaybackery_id NUMBER REFERENCES TODAYBACKERYS(todaybackery_id),
+    order_quantity INT
+);
+
+--데이터 추가
+INSERT INTO BACKERYS VALUES ('D_001', '단팥빵', 1700, '단과자');
+INSERT INTO BACKERYS VALUES('D_002','소보루',1700,'단과자');
+INSERT INTO BACKERYS VALUES('D_003','슈크림빵',1700,'단과자');
+INSERT INTO BACKERYS VALUES('D_004','단팥소보루',1900,'단과자');
+INSERT INTO BACKERYS VALUES('D_005','완두앙금빵',1900,'단과자');
+INSERT INTO BACKERYS VALUES('S_001','추억의소시지빵',2900,'소시지');
+INSERT INTO BACKERYS VALUES('S_002','뽀드득그릴소시지빵',3100,'소시지');
+INSERT INTO BACKERYS VALUES('S_003','든든한통소시지빵',3500,'소시지');
+INSERT INTO BACKERYS VALUES('S_004','소시지소프트프랑스',4100,'소시지');
+INSERT INTO BACKERYS VALUES('B_001','연유식빵',5800,'식빵');
+INSERT INTO BACKERYS VALUES('B_002','후레쉬크림식빵',5200,'식빵');
+INSERT INTO BACKERYS VALUES('B_003','모카크림식빵',6100,'식빵');
+INSERT INTO BACKERYS VALUES('B_004','밤식빵',6400,'식빵');
+INSERT INTO BACKERYS VALUES('B_005','시나몬식빵',3800,'식빵');
+INSERT INTO BACKERYS VALUES('B_006','맘모스브레드',4900,'식빵');
+INSERT INTO BACKERYS VALUES('B_007','갈릭브레드식빵',3700,'식빵');
+INSERT INTO BACKERYS VALUES('P_001','크로아상',2300,'페스츄리');
+INSERT INTO BACKERYS VALUES('P_002','크림크로아상',3100,'페스츄리');
+INSERT INTO BACKERYS VALUES('P_003','에그타르트',2200,'페스츄리');
+INSERT INTO BACKERYS VALUES('P_004','애플파이',2900,'페스츄리');
+INSERT INTO BACKERYS VALUES('P_005','호두파이',23000,'페스츄리');
+INSERT INTO BACKERYS VALUES('C_001','초코쉬폰',29000,'케잌');
+INSERT INTO BACKERYS VALUES('C_002','딸기쉬폰',29000,'케잌');
+INSERT INTO BACKERYS VALUES('C_003','티라미수',31000,'케잌');
+INSERT INTO BACKERYS VALUES('C_004','고구마케잌',27000,'케잌');
+INSERT INTO BACKERYS VALUES('C_005','생딸기치즈케잌',29000,'케잌');
+INSERT INTO BACKERYS VALUES('C_006','생딸기케잌',31000,'케잌');
+INSERT INTO BACKERYS VALUES('C_007','생딸기요거트케잌',32000,'케잌');
+INSERT INTO BACKERYS VALUES('C_008','블루베리요거트케잌',31000,'케잌');
+INSERT INTO BACKERYS VALUES('C_009','블루베리쉬폰',33000,'케잌');
+
+--모든 빵 조회 SQL문(고객용)
+select backery_name, price, category from backerys;
+--실시간 빵 조회 SQL문(고객용)
+select backery_name, price, create_date, quantity, category from todaybackerys join backerys using(backery_id);
+--카테고리 별 조회 SQL문(고객용)
+select backery_name, price, create_date, quantity, category from todaybackerys join backerys using(backery_id)
+where category='단과자';
+--빵 이름 별 조회 SQL문(고객용)
+select backery_name, price, create_date, quantity, category from todaybackerys join backerys using(backery_id)
+where backery_name='연유식빵';
+--있는 빵인지 확인
+select count(*) existbread from backerys
+where backery_name='연유식빵';
+
+
+--회원가입 SQL문
+INSERT INTO MEMBERS VALUES('taeyoung', '010-5910-1267', 'taeyoung');
+INSERT INTO MEMBERS VALUES('아기사자', '010-0000-0000', '아기사자');
+--이미 존재하는 회원인지 확인하기 (members_name 비교)
+select * from members;
+
+select count(*) as existuser from members where member_name = 'taeyoung';
+
+--TODAY SEQUNCE
+DROP SEQUENCE TODAY_NUM;
+CREATE SEQUENCE TODAY_NUM
+                INCREMENT BY 1
+                START WITH 1;
+                
+--제빵기사님용 모든 빵 조회
+select backery_Id, backery_name, nvl(quantity,0) as quantity, price, category
+from todaybackerys  right outer join backerys using(backery_id)
+order by 1;
+
+select * from todaybackerys order by 1;
+DELETE FROM todaybackerys WHERE todaybackery_id = 13;
+commit;
+
+--관리자용 오늘의 매출(판매된 빵, 수익)
+select sum(order_quantity) as soldcount, sum(order_quantity*price) 수익
+from todaybackerys  join backerys using(backery_id)
+        join orders using(todaybackery_id);
+
+select *
+from todaybackerys  join backerys using(backery_id)
+        join orders using(todaybackery_id);
+
+    
+      
+select * from todaybackerys;
+select * from orders;
+select * from backerys;
+
+--제빵기사님이 갓 구운 빵을 업데이트하는 SQL문
+INSERT INTO  TODAYBACKERYS VALUES (TODAY_NUM.nextval, 'D_001', 10);
+INSERT INTO  TODAYBACKERYS(todaybackery_id,backery_id,quantity) VALUES (TODAY_NUM.nextval, 'D_002', 10);
+INSERT INTO  TODAYBACKERYS(todaybackery_id,backery_id,quantity) VALUES (TODAY_NUM.nextval, 'D_003', 10);
+INSERT INTO  TODAYBACKERYS(todaybackery_id,backery_id,quantity) VALUES (TODAY_NUM.nextval, 'D_004', 10);
+INSERT INTO  TODAYBACKERYS(todaybackery_id,backery_id,quantity) VALUES (TODAY_NUM.nextval, UPPER('d_005'), 2);
+commit;
+
+--제빵기사님 맞는 아이디를 입력하셨나요?
+select count(*) existbread from backerys where backery_id= UPPER('d_005');
+-- 이미 수량을 등록한 빵인가요? 그럼 변경할 수 없음.
+select count(*) from TODAYBACKERYS where backery_id=UPPER('b_001');
+
+SELECT * FROM NLS_SESSION_PARAMETERS;
+--ORDER SEQUNCE
+DROP SEQUENCE ORDER_NUM;
+CREATE SEQUENCE ORDER_NUM
+                INCREMENT BY 1
+                START WITH 1000;
+
+--주문 SQL문
+INSERT INTO  ORDERS VALUES (ORDER_NUM.nextval, 'taeyoung', 1,2);
+INSERT INTO  ORDERS VALUES (ORDER_NUM.nextval, 'taeyoung', 3,3);
+INSERT INTO  ORDERS VALUES (ORDER_NUM.nextval, 'taeyoung', 4,1);
+
+SELECT * FROM ORDERS;
+delete from orders where order_id = 1004;
+select  * from todaybackerys;
+
+--회원인지 확인하기
+select count(*) from members where member_name = '아기사자';
+commit;
+select todaybackery_id from todaybackerys join backerys using(backery_id) where backery_name = '단팥빵';
+
+--주문 취소 SQL문
+DELETE FROM ORDERS WHERE ORDER_ID = 1007;
+--주문 변경 SQL문
+UPDATE ORDERS SET ORDER_QUANTITY = 3 WHERE ORDER_ID = 1002;
+UPDATE ORDERS SET ORDER_QUANTITY = 1 WHERE ORDER_ID = 1002;
+
+--회원이 이미 주문한 빵을 또다시 주문하려 하면 수량만 수정하도록 안내
+SELECT count(*) FROM ORDERS
+WHERE member_name = '아기사자' and todaybackery_id = 12;
+select count(*) existbread from TODAYBACKERYS where backery_id='P_002';
+
+select count(*) existbread from backerys
+				where backery_name='크로아상';
+                
+select count(*) existbread from TODAYBACKERYS where backery_id='D_002';
+
+select count(*) existbread from todaybackerys join backerys using(backery_id)
+where backery_name = '크로아상' and quantity>0;
+
+commit;
+--고객 개인별 자신의 주문 데이터 조회 SQL문
+SELECT order_id, backery_name, order_quantity, (order_quantity*price) price
+FROM ORDERS join todaybackerys using(todaybackery_id) join backerys using(backery_id)
+WHERE member_name = '아기사자';
+
+
+select * from todaybackerys join backerys using(backery_id);
+
+commit ;
+
+CREATE OR REPLACE TRIGGER QUANTITY_UPDATE
+    AFTER INSERT OR UPDATE OR DELETE ON ORDERS --ORDER에 INSERT, UPDATE, DELETE문이 발생될때마다 실행한다.
+FOR EACH ROW
+DECLARE
+BEGIN
+   IF INSERTING THEN
+            UPDATE TODAYBACKERYS SET QUANTITY = (QUANTITY - :NEW.ORDER_QUANTITY)
+            WHERE todaybackery_id = :NEW.todaybackery_id;
+    ELSIF DELETING THEN 
+            UPDATE TODAYBACKERYS SET QUANTITY = (QUANTITY + :OLD.ORDER_QUANTITY)
+            WHERE  todaybackery_id = :OLD.todaybackery_id;
+    ELSIF UPDATING THEN
+            IF(:OLD.ORDER_QUANTITY > :NEW.ORDER_QUANTITY) THEN --변경하려는 수량의 값이 이전 수량보다 작으면 그 차이만큼 빵을 돌려줘야 한다.
+                UPDATE TODAYBACKERYS SET QUANTITY = (QUANTITY + (:OLD.ORDER_QUANTITY - :NEW.ORDER_QUANTITY))
+                WHERE todaybackery_id = :OLD.todaybackery_id;
+            ELSE --변경하려는 수량의 값이 이전 수량보다 작으면 그 차이만큼 빵을 더 빼줘야 한다.
+                UPDATE TODAYBACKERYS SET QUANTITY = (QUANTITY - (:NEW.ORDER_QUANTITY - :OLD.ORDER_QUANTITY))
+                WHERE todaybackery_id = :OLD.todaybackery_id AND QUANTITY - (:NEW.ORDER_QUANTITY - :OLD.ORDER_QUANTITY) > 0;
+            END IF;
+    END IF;
+END;
+/
+
+--해당 빵의 남아있는 수량 조회
+select quantity
+from todaybackerys join orders using(todaybackery_id)
+where order_id = '1016';
+
+select order_quantity
+from todaybackerys join orders using(todaybackery_id)
+where order_id = '1016';
+
+DELETE FROM ORDERS;
+DELETE FROM TODAYBACKERYS ;
+COMMIT;
+
+--새로운 날이 시작되면 영업을 다시 시작하는(ORDERS와 TODAYBACKERYS의 행이 비워지는) 프로시저
+create or replace procedure newdaySales
+is
+    v_message varchar2(50) := 'ORDERS와 TODAYBACKERYS 테이블을 비웁니다.';
+begin
+    DELETE FROM ORDERS;
+    DELETE FROM TODAYBACKERYS ;
+    commit;
+    DBMS_OUTPUT.PUT_LINE(v_message);
+end;
+/
+
+set serveroutput on;
+
+execute newdaySales;
+
+
+--너무 불편해서 VIEW 만듦
+create or replace view breads_view
+as
+select backery_id, backery_name, quantity, todaybackery_id, member_name, order_quantity
+from ORDERS join todaybackerys using(todaybackery_id) join backerys using(backery_id)
+with read only;
+
+select * from breads_view;
+
+select * from orders;
+select * from todaybackerys join backerys using(backery_id);
+
+commit;
