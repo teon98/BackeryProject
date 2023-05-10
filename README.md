@@ -9,8 +9,8 @@
 - [프로그램 화면](#프로그램화면)
 - [예외처리 정리](#예외처리-정리)
 - [중요 소스코드 및 학습내용](#중요소스코드-및-학습내용)
-- [추가 구현한 기능](#추가-구현한-기능)
-- 마무리
+- [추가 구현한 기능](#추가적으로-알게-된-내용)
+- [마무리](#마무리)
 ## 개발목적
 - 고객이 갓 구운 빵의 정보를 실시간으로 조회하고, 빵을 예약/예약 조회/예약 수정/예약 취소하는 기능을 구현한다.
 - 이를 통해 JDBC를 이용해 자바와 오라클 DB를 연결하고, MVC 패턴으로 프로그램을 구성하는 것에 대해 학습한다.
@@ -52,9 +52,22 @@
 ### 4.MVC 패턴
 <img src="https://user-images.githubusercontent.com/49816869/230576017-da561888-045d-4191-9ccd-92b5d61128e8.jpg" width="80%" />
 
-### 5. 추가적으로 알게 된 내용
+## 추가적으로 알게 된 내용
 JDBC에서 시분초도 표시하고 싶으면 Date 클래스가 아닌 TimeStamp 클래스를 사용하면 됨을 알게되었습니다.
 <img src="https://user-images.githubusercontent.com/49816869/230575784-c8090beb-3a9f-4ee2-ab36-17f8420d57c7.jpg" width="80%" />
+
+## 마무리
+### 추가적으로 구현하고 싶은 기능
+1) 주문 수량 변경 시 처음 제공된 빵의 수량보다 더 많은 수량으로 변경 될 경우(잘못된 수량 변경 요청시) 수량이 변경되지 못하도록 하는 조건 추가
+2) 다른 날에 장사를 시작할 시 Orders 테이블과, Todaybackerys 테이블이 비워지는 기능 추가
+<img src="https://github.com/teon98/BackeryProject/assets/49816869/4075b7d4-7106-487d-914a-5817c5b13643" width="80%" />
+<img src="https://github.com/teon98/BackeryProject/assets/49816869/43475f08-05a3-475c-8f95-605d91b0164e" width="80%" />
+
+### 아쉬웠던 점
+Orders 테이블과 Todaybackerys 테이블을 join 하여 쓸 일이 많았는데, 프로젝트를 마무리 한 후에 보니 뷰를 만들어 이용해볼껄 하는 아쉬움이 남았습니다. <br />
+<img src="https://github.com/teon98/BackeryProject/assets/49816869/5e145fc3-0889-45fd-ba78-0c71f74148e9" width="80%" />
+
+
 
 
 
